@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">EQList</string>
+
+    <string name="magnitude">MAG</string>
+    <string name="location">LOC</string>
+    <string name="title_activity_eq">EQActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_show_tsunami">Show tsunamis</string>
+    <string name="action_show_all">Show all</string>
+
+</resources>
