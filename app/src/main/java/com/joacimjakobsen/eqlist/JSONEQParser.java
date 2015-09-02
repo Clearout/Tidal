@@ -4,20 +4,15 @@ package com.joacimjakobsen.eqlist;
 import android.util.Log;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.joacimjakobsen.eqlist.EQ;
-/**
- * Created by joaci_000 on 25-Aug-15.
- */
 public class JSONEQParser {
 
     public static EQ[] getEQ(String data) {
         try {
             JSONObject jFeatures = new JSONObject(data);
             JSONArray jArr = jFeatures.getJSONArray("features");
-            EQ[] eqlist = new EQ[jArr.length()];
+            EQ[] eqList = new EQ[jArr.length()];
             JSONObject jObj = null;
             JSONObject jProp = null;
             JSONArray jCoors = null;
@@ -26,7 +21,7 @@ public class JSONEQParser {
                 jProp = jObj.getJSONObject("properties");
                 jCoors = jObj.getJSONObject("geometry").getJSONArray("coordinates");
 
-                eqlist[i] = new EQ(
+                eqList[i] = new EQ(
                         jProp.getString("mag"),
                         jProp.getString("place"),
                         jObj.getString("id"),
@@ -34,9 +29,8 @@ public class JSONEQParser {
                         jCoors.getString(0),
                         jCoors.getString(1)
                 );
-               // Log.d("DATA " + i, eqlist[i].toString());
             }
-            return eqlist;
+            return eqList;
         } catch (Exception e) {
             e.printStackTrace();
         }

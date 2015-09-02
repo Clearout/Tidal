@@ -1,5 +1,7 @@
 package com.joacimjakobsen.eqlist;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -11,19 +13,16 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
-import com.twitter.sdk.android.Twitter;
-import com.twitter.sdk.android.core.TwitterAuthConfig;
-import io.fabric.sdk.android.Fabric;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class EQList extends AppCompatActivity {
-
 
     private ListView listView;
     private ArrayList<String> listItems = new ArrayList<String>();
     private ArrayAdapter<String> adapter;
-    private EQ[] eqlist;
+    private EQ[] eqList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +36,8 @@ public class EQList extends AppCompatActivity {
             }
         });
 
-        eqlist = new EQ[0]; // Change to prev saved eqlist?
+        eqList = new EQ[0];
+
         JSONEQTask task = new JSONEQTask();
         task.execute();
     }
@@ -45,17 +45,29 @@ public class EQList extends AppCompatActivity {
     // When a list item is touched.
     public void goToEQ(int position) {
         Intent intent = new Intent(this, EQActivity.class);
-        intent.putExtra(EQActivity.EQ_ID, eqlist[position].getEventID());
-        intent.putExtra(EQActivity.LAT, eqlist[position].getLatitude());
-        intent.putExtra(EQActivity.LONG, eqlist[position].getLongitude());
-        intent.putExtra(EQActivity.MAG, eqlist[position].getMag());
-        intent.putExtra(EQActivity.PLACE, eqlist[position].getPlace());
+        intent.putExtra(EQActivity.LAT, eqList[position].getLatitude());
+        intent.putExtra(EQActivity.LONG, eqList[position].getLongitude());
+        intent.putExtra(EQActivity.MAG, eqList[position].getMag());
+        intent.putExtra(EQActivity.PLACE, eqList[position].getPlace());
         startActivity(intent);
     }
 
+    // Update view with fetched EQ data or provide error dialog.
     private void updateListView(EQ[] eqlist) {
-        if (this.eqlist.length <= eqlist.length) {
-            this.eqlist = eqlist;
+        if (eqlist == null || eqlist.length == 0) {
+            new AlertDialog.Builder(this)
+                    .setTitle("ERROR")
+                    .setMessage("Can't find any earthquake data. You may not have an internet connection or the server may be unavailable.")
+                    .setNeutralButton("Retry.", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            JSONEQTask task = new JSONEQTask();
+                            task.execute();}})
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+            return;
+        }
+        if (this.eqList.length <= eqlist.length) {
+            this.eqList = eqlist;
         }
         listItems.clear();
         for (int i=0; i<eqlist.length; i++) {
@@ -71,10 +83,15 @@ public class EQList extends AppCompatActivity {
 
         @Override
         protected EQ[] doInBackground(String... params) {
-
-            String URL = "";
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date now = new Date();
+            String endTime = dateFormat.format(now);
+            Date weekAgo = new Date(now.getTime() - 604800000L); // One week in millis
+            String startTime = dateFormat.format(weekAgo);
+            String URL = "http://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=" +
+                    startTime + "&endtime=" + endTime + "&limit=20&orderby=magnitude&eventtype=earthquake";
             EQ[] eqlist = null;
-            JSONClient client = new JSONClient("http://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2015-08-18&endtime=2015-08-25&limit=20&orderby=magnitude&eventtype=earthquake");
+            JSONClient client = new JSONClient(URL);
             String data = client.getList();
 
             try {
@@ -90,13 +107,7 @@ public class EQList extends AppCompatActivity {
         protected void onPostExecute(EQ[] eqlist) {
             super.onPostExecute(eqlist);
             // Add fields to all buttons
-            if (eqlist == null) {
-                Log.e("JSON ERR", "Can't load eqlist");
-                return;
-            }
-
             updateListView(eqlist);
-
         }
     }
 
@@ -116,12 +127,16 @@ public class EQList extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_show_tsunami) {
-            EQ[] tsunamiList = EQ.filterToTsunamis(eqlist);
+            if (eqList.length < 1)
+                return false;
+            EQ[] tsunamiList = EQ.filterToTsunamis(eqList);
             Log.e("TSUNAMIS " + tsunamiList.length, tsunamiList[0].toString());
             updateListView(tsunamiList);
             return true;
         } else if (id == R.id.action_show_all) {
-            updateListView(eqlist);
+            if (eqList.length < 1)
+                return false;
+            updateListView(eqList);
             return true;
         }
         return super.onOptionsItemSelected(item);

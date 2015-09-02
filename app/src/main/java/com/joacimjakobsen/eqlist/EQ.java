@@ -8,15 +8,6 @@ public class EQ {
     private String longitude;
     private String latitude;
 
-    public EQ(){
-        mag = null;
-        place = null;
-        eventID = null;
-        tsunami = false;
-        longitude = null;
-        latitude = null;
-    }
-
     public EQ(String mag, String place, String eventID, boolean tsunami, String longitude, String latitude) {
         this.mag = mag;
         this.place = place;
