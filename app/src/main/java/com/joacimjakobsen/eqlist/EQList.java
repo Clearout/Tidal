@@ -1,18 +1,25 @@
 package com.joacimjakobsen.eqlist;
 
 import android.app.AlertDialog;
+import android.app.LauncherActivity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,8 +27,8 @@ import java.util.Date;
 public class EQList extends AppCompatActivity {
 
     private ListView listView;
-    private ArrayList<String> listItems = new ArrayList<String>();
-    private ArrayAdapter<String> adapter;
+    private ArrayList<EQ> listItems = new ArrayList<EQ>();
+    private ArrayAdapter<EQ> adapter;
     private EQ[] eqList;
 
     @Override
@@ -71,13 +78,22 @@ public class EQList extends AppCompatActivity {
         }
         listItems.clear();
         for (int i=0; i<eqlist.length; i++) {
-            listItems.add(eqlist[i].getMag() + "  -  " + eqlist[i].getPlace());
+            listItems.add(eqList[i]);
         }
 
-        adapter = new ArrayAdapter<String>(this, R.layout.listview_item_row, listItems);
+        adapter = new ArrayAdapter<EQ>(this, R.layout.listview_item_row, listItems) {
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                TextView textView = (TextView) super.getView(position, convertView, parent);
+                textView.setBackgroundColor(listItems.get(position).getColor());
+                return textView;
+            }
+        };
         listView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
+
 
     private class JSONEQTask extends AsyncTask<String, Void, EQ[]>{
 

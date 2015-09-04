@@ -1,5 +1,7 @@
 package com.joacimjakobsen.eqlist;
 
+import android.graphics.Color;
+
 public class EQ {
     private String mag;
     private String place;
@@ -7,14 +9,26 @@ public class EQ {
     private boolean tsunami;
     private String longitude;
     private String latitude;
+    private int color;
 
-    public EQ(String mag, String place, String eventID, boolean tsunami, String longitude, String latitude) {
+    public EQ(String mag, String place, String eventID, boolean tsunami, String longitude, String latitude, String mmi) {
         this.mag = mag;
         this.place = place;
         this.eventID = eventID;
         this.tsunami = tsunami;
         this.longitude = longitude;
         this.latitude = latitude;
+        int numMmi;
+        if (mmi.compareTo("null") == 0) {
+            numMmi = 0;
+        } else {
+            try {
+                numMmi = Integer.parseInt(mmi);
+            } catch (Exception e) {
+                numMmi = 0;
+            }
+        }
+        color = getMmiColor(numMmi);
     }
 
     public static EQ[] filterToTsunamis(EQ[] eqlist) {
@@ -34,63 +48,47 @@ public class EQ {
         return tsunamiList;
     }
 
+    public int getColor() { return color; }
+
     public String getMag() {
         return mag;
     }
 
-    public void setMag(String mag) {
-        this.mag = mag;
-    }
-
-    public String getPlace() {
-        return place;
-    }
-
-    public void setPlace(String place) {
-        this.place = place;
-    }
-
-    public String getEventID() {
-        return eventID;
-    }
-
-    public void setEventID(String eventID) {
-        this.eventID = eventID;
-    }
-
-    public boolean isTsunami() {
-        return tsunami;
-    }
-
-    public void setTsunami(boolean tsunami) {
-        this.tsunami = tsunami;
-    }
+    public String getPlace() { return place; }
 
     public String getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
-    }
-
-    public String getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
-    }
+    public String getLatitude() { return latitude; }
 
     @Override
     public String toString() {
-        return "EQ{" +
-                "mag='" + mag + '\'' +
-                ", place='" + place + '\'' +
-                ", eventID='" + eventID + '\'' +
-                ", tsunami=" + tsunami +
-                ", longitude='" + longitude + '\'' +
-                ", latitude='" + latitude + '\'' +
-                '}';
+        return getMag() + "  -  " + getPlace();
+    }
+
+    public int getMmiColor(int mmi) {
+        switch (mmi) {
+            default:
+                return Color.WHITE;
+            case 2:
+                return Color.rgb(135, 206, 250);
+            case 3:
+                return Color.rgb(135, 206, 250);
+            case 4:
+                return Color.rgb(64, 224, 208);
+            case 5:
+                return Color.rgb(0, 255, 127);
+            case 6:
+                return Color.YELLOW;
+            case 7:
+                return Color.rgb(255, 165, 0);
+            case 8:
+                return Color.rgb(255, 140, 0);
+            case 9:
+                return Color.RED;
+            case 10:
+                return Color.rgb(178, 34, 34);
+        }
     }
 }

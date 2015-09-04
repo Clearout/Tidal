@@ -27,7 +27,8 @@ public class JSONEQParser {
                         jObj.getString("id"),
                         jProp.getInt("tsunami")==1,
                         jCoors.getString(0),
-                        jCoors.getString(1)
+                        jCoors.getString(1),
+                        jProp.getString("mmi")
                 );
             }
             return eqList;
